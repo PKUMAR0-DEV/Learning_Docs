@@ -1,0 +1,352 @@
+
+You can reference all of the subnets created by this for_each by using a [*] at the end of the resource address like this aws_subnet.private_subnets[*]
+
+he state file for the current workspace may not be named terraform.tfstate directly but may include the workspace name (e.g., terraform.tfstate for the "default" workspace, or terraform.tfstate.d/<workspace_name> for other workspaces).
+
+*The --refresh-only flag with terraform apply is useful for updating the Terraform state without making any changes to your infrastructure. It’s a good way to ensure consistency between your state file and the actual resources.
+
+*To set a Terraform variable using environment variables, the format for the environment variable name must follow this convention:
+
+TF_VAR_<VARIABLE_NAME>
+
+
+*?ref=branch-name: This part tells Terraform to use a specific branch (replace branch-name with the actual branch you want to use).
+
+*lookup(map, key, default)
+
+
+*terraform init -migrate-state
+
+**The for_each argument is used to create multiple instances of a resource based on a map or set. Each instance can have a different configuration.
+
+**Count Suitable for creating multiple identical resources (like multiple EC2 instances) where the configuration is largely the same.
+
+***No, Terraform does not store the default value of a variable or its description in the Terraform state file. 
+
+
+terraform get -update >> Used alog terraform get for intallation of latest module changes
+
+
+Terraform is an immutable, declarative, Infrastructure as Code configuration management language based on Hashicorp Configuration Language, or optionally JSON.
+
+
+Resource dependencies are not handled by setting the `depends_on` meta-argument to true by default. Terraform uses implicit ordering requirements based on expressions within resource blocks.
+
+>>Source URL: The source URL of a private module typically points to a private repository or a private registry that is not publicly accessible. For example, a private module hosted on a private Terraform Cloud registry might have a source URL like app.terraform.io/my-organization/my-module/aws.
+
+Public::   source  = "terraform-aws-modules/vpc/aws"
+
+>>terraform apply -replace=""
+
+
+>>When using modules, it's common practice to declare variables outside of the module and pass the value(s) to the child module when it is called by the parent/root module. However, it's perfectly acceptable to declare a variable inside of a module if you needed. Any variables declared inside of a module are only directly referencable within that module. You can't directly reference that variable outside of the module. You can, however, create an output in the module to export any values that might be needed outside of the module.
+
+>>While the local backend does support locking via system APIs, you can't use the local backend to share the state across your team.
+
+
+>>Terraform can automatically detect and use providers based on the resource configurations defined in the code. However, explicitly defining provider blocks enhances code readability and helps avoid potential conflicts or ambiguities in resource management.
+
+
+>>Terraform follows the principle of desired state configuration management. When you run a terraform apply, Terraform will compare the current state of the infrastructure with the desired state defined in the configuration. Since the manually updated security group matches the desired state in the Terraform configuration, Terraform will recognize that no changes are needed and will not modify the infrastruct
+
+>>An enhanced storage backend like the remote backend allows you to execute your Terraform operations on infrastructure either locally or in HCP Terraform. This flexibility enables you to work seamlessly across different environments and collaborate with team members using different setups.
+
+>>You can reference all of the subnets created by this for_each by using a [*] at the end of the resource address like this aws_subnet.private_subnets[*]
+
+>>terraform destroy, terraform apply -destroy
+
+>>The terraform version command is used to display the currently installed version of Terraform on your system
+
+>>>set TF_LOG_PATH=C:\Users\HE373AQ\OneDrive - EY\Desktop\Terra\LOGGS.txt
+>>>set TF_LOG=TRACE
+
+>>>locals {
+  base_url  = "https://example.com"
+  full_url  = "${local.base_url}/api/v1"
+}
+
+output "full_url" {
+  value = local.full_url
+}
+
+
+>>>terraform apply -replace="resource_type.resource_name"
+>> depends_on = [aws_eip.example]
+
+>>lookup(map, key, default)
+>>terraform apply -var-file="testing.tfvars"
+
+
+>>
+Terraform loads variables in the following order, with later sources taking precedence over earlier ones:
+
+Environment variables
+The terraform.tfvars file, if present.
+The terraform.tfvars.json file, if present.
+Any *.auto.tfvars or *.auto.tfvars.json files, processed in lexical order of their filenames.
+Any -var and -var-file options on the command line, in the order they are provided. (This includes variables set by an HCP Terraform workspace.)
+
+
+>>>>>
+terraform import aws_instance.example i-abcd1234
+
+
+>>
+resource "aws_security_group" "example" {
+  name        = "example_sg"
+  description = "Example security group"
+
+  dynamic "ingress" {
+    for_each = var.ingress_rules
+    content {
+      cidr_blocks = [ingress.value.cidr_block]
+      from_port   = ingress.value.from_port
+      to_port     = ingress.value.to_port
+      protocol    = ingress.value.protocol
+    }
+>>with varibale.tf file
+
+
+>>>>>terraform apply -var kpnumber=4
+
+
+>>>Root Module Outputs: Output values defined in the root module will be displayed after a successful terraform apply.
+Child Module Outputs: Output values defined in a child module will be accessible, but you need to explicitly reference them from the root module in order to display them. These values will not automatically be shown unless they are explicitly referenced in the root module.
+
+>>The "-upgrade" flag tells Terraform to upgrade all providers to the latest version.
+
+>>terraform {
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "company"
+
+    workspaces {
+      name = "my-app-prod"
+
+>>The remote backend is unique among all other Terraform backends because it can both store state snapshots and execute operations for HCP Terraform's CLI-driven run workflow. It used to be called an "enhanced" backend.
+
+>>terraform plan -out=rudra.txt
+
+>>No, running the terraform taint command does not terminate the affected resource immediately. It marks the resource as "tainted," indicating that it should be recreated during the next terraform apply, but it does not cause the resource to be destroyed immediately.
+
+>>resource
+   provisoner
+   connection 
+
+>>>For list ordering in important and not for set.Also set takes only unique value.
+
+>>for_each
+   each.value - To extract value of key
+   each.key - to extract value of key
+
+
+
+>>>terraform { 
+  cloud { 
+    
+    organization = "Rudra_123" 
+
+    workspaces { 
+      name = "Rudra_New" 
+    } 
+  } 
+}
+
+>>> features are unique to Terraform Cloud Business Plan?
+
+Audit Logging,,Version Control Integration,,Private Network Connectivity
+
+>>>
+Terraform supports which of the following formats for it's configuration files
+
+HCL , JSON
+
+>>> "default". This workspace is special both because it is the default and also because it cannot ever be deleted.
+
+>>Terraform Enterprise supports the following data storage options for storing Terraform state and other necessary data:
+
+PostgreSQL:
+Amazon S3 (for AWS):
+Azure Blob Storage:
+
+>>Terraform Cloud supports the following Version Control System (VCS) providers for integrating with your infrastructure code:
+
+GitHub
+
+Supports both GitHub.com (public repositories) and GitHub Enterprise Server (self-hosted instances).
+GitLab
+
+Supports GitLab.com (public repositories) and GitLab Self-Managed (self-hosted instances).
+Bitbucket Cloud
+
+Supports repositories hosted on Bitbucket Cloud.
+Azure DevOps services
+
+>>>
+Which of the following OS is Terraform supported in? Linux , mac , windows 
+
+
+>>? 1 : 0: This is the ternary conditional operator in Terraform. It works like an if-else statement. If the condition before the ? is true, the value after the ? is used (in this case, 1). If the condition is false, the value after the : is used (in this case, 0).
+>>data.<TYPE>.<NAME>.<ATTRIBUTE>
+
+>>To make use of the S3 remote state in another configuration, use the terraform_remote_state data source.
+
+data "terraform_remote_state" "network" {
+  backend = "s3"
+  config = {
+    bucket = "terraform-state-prod"
+    key    = "network/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
+data.terraform_remote_state.name.outputs.id
+ 
+>>>
+
+terraform {
+  backend "s3" {
+    bucket = "mybucket"
+    key    = "path/to/my/key"
+    region = "us-east-1"
+  }
+}
+
+
+>>>>>
+terraform plan -var="instance_type=t2.large"
+
+>>>export TF_VAR_instance_type=t2.large for setting through env file
+
+>>resource "aws_resource_type" "example" {
+  provider = aws.west
+  # ... other configuration arguments ...
+}
+
+
+>>>
+The terraform plan -refresh-only command is used to create a plan whose goal is only to update the Terraform state to match any changes made to remote objects outside of Terraform.
+>> description = "Vault ELB" should have quotation
+
+>>spaces between each nesting level does HashiCorp recommend that you use =2 
+
+>> terraform apply -replace=aws_instance.web to mark the virtual machine for replacement.
+
+>>terraform destroy -target <virtual machine> and destroy only the virtual machine and then run a terraform apply again.
+
+>>when writing output if we just define resource.resource name and no attribute, it will give output of all attributes related to that resource.
+output "resource_group_name" {
+   description = "The name of the resource group"
+   value       = azurerm_resource_group.example
+ }
+
+>>>var.name[count.index] to take names from list
+
+>>Does not support user-defined functions
+>> element(list , key)
+
+>>set TF_LOG_PATH=terra.txt
+
+>>>terraform plan -out infra.plan , terraform apply -infra.plan
+
+>>when you see count in any resouce block , use splat expression to get value of any attribute in output
+output "public_ips" {
+  value = aws_instance.example[*].public_ip
+}
+
+
+>>>terraform {
+    required_version = "1.2.1"
+    required_providers {
+      aws {
+       version =
+       source =
+    experiments =
+
+>>>>> resource targating , terraform destroy -target="azurerm_virtual_machine.main"
+
+>>>terraform plan -refresh=false , limit api calls
+
+>> lifecycle {
+     ignore_changes = all
+
+>>set is unordered and unique , list is ordered and not unique
+
+>>for_each = var.mylist   [ for set ]
+    name = each.value
+
+for_each = var.mylist   [ for map ]
+    name = each.value
+
+tages = each.key
+
+
+>>>>>>>>
+dynamic blocks are used to create multiple instances of a nested block within a resource, while for_each is used to create multiple instances of an entire resource or module.
+
+>>>the resources that were successfully provisioned will remain as deployed
+ Terraform follows a declarative approach, where it only manages the resources specified in the configuration file. Once a resource is successfully provisioned, it will remain deployed unless explicitly destroyed or modified in the configuration.
+
+>>>Ephemeral values = locals
+locals {
+  service_tag   = "${var.service_name}-${var.environment}"
+  session_token = "${var.service_name}:${var.service_token}"
+}
+
+>>>>
+Don't forget that configurations for a provider go inside of a provider block, but any provider constraints go inside of the terraform --> required_providers block.
+
+>>>>When using modules, it's common practice to declare variables outside of the module and pass the value(s) to the child module when it is called by the parent/root module. However, it's perfectly acceptable to declare a variable inside of a module if you needed. Any variables declared inside of a module are only directly referencable within that module. You can't directly reference that variable outside of the module. You can, however, create an output in the module to export any values that might be needed outside of the module.
+
+
+>>>The parent module can then reference the output using the module.<module_name>.<output_name> syntax.
+
+>>    terraform { 
+  cloud { 
+    
+    organization = "Rudra_123" 
+
+    workspaces { 
+      name = "ffff" 
+    } 
+  } 
+}
+
+
+>>>The terraform version command is used to display the currently installed version of Terraform on your system.
+
+>>slice: This is not a valid string function in Terraform. slice is a function used with lists, not strings. It returns a sublist from a given list based on specified indices.
+>>chomp: This is a valid string function in Terraform. It removes trailing newline characters from a string.
+
+Example:
+
+hcl
+Copy code
+chomp("hello\n")  # "hello"
+
+
+>>>>>
+Extract IDs Using [*] Syntax:
+
+var.list[*].id uses the splat syntax to extract the id attribute from each object in the list and produces a list of IDs. This is assigned to the ids_using_splat output.
+Extract IDs Using for Expression:
+
+[for o in var.list : o.id] uses a for expression to iterate over each object in the list and extract the id. This is assigned to the ids_using_for output.
+# Use a for loop expression to extract the list of IDs
+output "ids_using_for_expression" {
+  value = [for o in var.list : o.id]
+}
+
+>>>>
+Overuse of dynamic blocks can make configuration hard to read and maintain
+
+>>>depends_on = []
+
+>>terraform apply -var-file="filename.tfvars"  
+terraform apply -var="region=us-east-1"
+set TF_VAR_region=us-east-1
+
+
+>>>Setting the TF_LOG environment variable to DEBUG doesnot causes debug messages to be logged into syslog inted in the console or cli . To save logs use:- set TF_LOG_PATH=nelog.txt
+ 
+>>>data block to define the query, and then reference the result in your resources by referring to data.<data_source_name>.<name>.<attribute>.

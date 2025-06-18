@@ -1,0 +1,83 @@
+>>> Outside of the required_providers block, Terraform configurations always refer to providers by their local names.  =  TRUE
+
+>>The best practice for protecting sensitive values in Terraform state files is to use enhanced remote backends, such as those that support encryption at rest and in transit.
+
+A remote backend allows you to store your Terraform state in a central location, such as an S3 bucket or a HashiCorp Consul server. This allows you to share state files between team members and across multiple environments, such as staging and production.
+
+Using an enhanced remote backend with encryption at rest and in transit helps to protect the sensitive values in your state file from unauthorized access or tampering.
+
+
+>>>>Local values can indeed reference other local values, which is useful for organizing and simplifying your Terraform configurations.
+
+>>Unlike other commands, terraform import is not automatically run as part of other Terraform commands like terraform init, terraform plan, or terraform refresh. It must be run explicitly by the user when they want to import an existing resource into the Terraform state.
+
+Syntax:
+bash
+
+terraform import <resource_type>.<resource_name> <resource_id>
+
+>>>Private Registry Module Sources
+You can also use modules from a private registry, like the one provided by HCP Terraform. Private registry modules have source strings of the form <HOSTNAME>/<NAMESPACE>/<NAME>/<PROVIDER>. This is the same format as the public registry, but with an added hostname prefix.
+
+module "vpc" {
+  source = "app.terraform.io/example_corp/vpc/aws"
+  version = "0.9.3"
+}
+
+>>> to access the output of a child module from a parent module, you use the following syntax:
+
+>>>>
+module.<MODULE_NAME>.<OUTPUT_NAME>
+
+terraform plan -refresh-only
+
+terraform plan -refresh=false
+
+>>>>
+Interacting with Vault from Terraform causes any secrets that you read and write to be persisted in both Terraform's state file and in any generated plan files. For any Terraform module that reads or writes Vault secrets, these files should be treated as sensitive and protected accordingly.
+
+
+>>In remote-exac define the connection
+
+>>creation time provisoner will run only during creation and not at any other lifecycle like updating or recreation.
+ for destrroy time provisoner use :- when = destroy 
+
+on_failure = contine or fail(default)
+
+>> Avoid using regin for provider in module , Insted use required_provider in terraform block .
+>>>data.<DATA_SOURCE_TYPE>.<NAME>.<ATTRIBUTE>
+
+>>>terraform state mv <old name> <new name>
+then change the new name in cinfiguration file 
+
+>>terraform state replace-provider <harcicrp/aws> <new one>
+
+>>terraform state pull 
+
+>>data "terraform_remote_state" "example" {
+  backend = "s3"
+output "remote_instance_id" {
+  value = data.terraform_remote_state.example.outputs.instance_id
+}
+
+??There is an option "otputs" in tfstate that we are refering here.s
+
+
+>>>provider "aws" {
+  region     = "us-east-1"
+}
+
+===========================
+import {
+  to = aws_security_group.mysg
+  id = "sg-07f13feb262ba8b6f"
+}
+
+
+
+---..>>terraform plan -generate-config-out=mysg.tf
+===============================
+
+>>terraform force-unlock <lockid>
+
+>>>If there is no state file associated with a Terraform configuration file, a terraform apply will create the resources defined in the configuration file. This is a normal workflow during the first terraform apply that is executed against a configuration file. This, of course, assumes that the directory has been initialized using a terraform init
