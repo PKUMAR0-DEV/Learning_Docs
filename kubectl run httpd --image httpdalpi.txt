@@ -1,0 +1,303 @@
+ kubectl run httpd --image httpd:alpine --port 80 --expose --dry-run=client -o yaml >po.yaml
+
+----------
+Use envFrom to define all of the Secret's data as container environment variables. The key from the Secret becomes the environment variable name in the Pod.
+
+pods/inject/pod-secret-envFrom.yaml
+Copy pods/inject/pod-secret-envFrom.yaml to clipboard
+apiVersion: v1
+kind: Pod
+metadata:
+  name: envfrom-secret
+spec:
+  containers:
+  - name: envars-test-container
+    image: nginx
+    envFrom:
+    - secretRef:
+        name: test-secret
+==================
+k set --help
+
+  env              Update environment variables on a pod template
+  image            Update the image of a pod template
+  resources        Update resource requests/limits on objects with pod templates
+  selector         Set the selector on a resource
+  serviceaccount   Update the service account of a resource
+  subject 
+==================
+kubectl get all --selector env=prod,bu=finance,tier=frontend
+=======
+
+### Key Points:
+1. **PVCs are namespace-scoped**:
+   - A PVC can only bind to a PersistentVolume (PV) within the same namespace.
+   - If your deployment is in a specific namespace (e.g., `zuc0co`), the PVC must also exist in that namespace.
+
+2. **When to include the namespace**:
+   - If you are working in a namespace other than the default, you should explicitly specify the namespace in the PVC definition:
+     ```yaml
+     metadata:
+       namespace: zuc0co
+     ```
+   - If you omit the namespace, the PVC will be created in the namespace currently set in your `kubectl` context..
+
+### Best Practice:
+- Always specify the namespace explicitly in the PVC if your deployment is in a non-default namespace. This avoids confusion and ensures the PVC is created in the correct namespace.
+======
+Here’s how you can use both **`nodeSelector`** and **`affinity`** to schedule a pod on the control plane node with the label `kubernetes.io/hostname: controlplane`.
+
+---
+
+### **Using `nodeSelector`**
+This is the simpler approach, where you specify the label key-value pair directly.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-using-nodeselector
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: controlplane
+  containers:
+  - name: nginx
+    image: nginx
+```
+
+#### Explanation:
+- The `nodeSelector` field ensures that the pod is scheduled only on the node with the label `kubernetes.io/hostname: controlplane`.
+- If no node matches this label, the pod will remain unscheduled.
+
+===================
+k get clusterrolebindings | wc -l
+kubectl get deployment --no-headers | wc -l
+========
+cd /etc/kubernetes/manifests.kube-apiserver.yaml
+========
+controlplane /etc/kubernetes/manifests ➜  ls
+etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml
+>>>>
+add nodeName field in spec to schedule pod manually in any pode
+-===--
+k describe node controlplane | grep -i taints
+=====
+afinity are based on lables , while taints on tolerations 
+----
+Deploying and managing a wide range of AWS services such as AWS Elastic Beanstalk, EC2 Auto Scaling, AWS Lambda, and Amazon Elastic Kubernetes Service (EKS), alongside Azure offerings like App Services, VMSS, Azure Functions, and Azure Kubernetes Service (AKS), ensuring seamless multi-cloud operations and scalability.
+=====
+k cordon node01
+k drain node01 --ignore-daemonsets
+=====
+ k config --kubeconfig=/root/my-kube-config use-context research
+ kubectl config --kubeconfig=/root/my-kube-config current-context
+====
+vi ~/.bashrc
+
+export KUBECONFIG=/root/my-kube-config
+
+source ~/.bashrc
+k config current-context
+=========
+unset KUBECONFIG , to move back to default config file 
+====
+use tail -f to get the file coontent dinamically of a log. 
+=============
+Use Pod fields as values for environment variables 
+-------
+ env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+===============
+envFrom
+=====
+command: ["/bin/sh", "-c", "while true; do date >> /var/log/shared/date.log; sleep 1; done"] , since its loop till done it should be written in one "" othetwise loop will break.
+    command: ["bin/sh","-c","tail -f /var/log/shared/date.log"]
+
+There shoud be no ; after do date otherwise shell will interprate >> as a command which is not valid.
+==========
+ssh username@nodename
+
+ssh bob@node01, then yes and then password
+=======
+ k run pod4 --image nginx --dry-run=client -o yam >jh.yaml --command -- sleep 1000
+============
+k get node -o json , see the path
+
+go to kubctl cheet sheet 
+
+kubectl get nodes -o jsonpath='{.items[*].status.nodeInfo.osImage}'
+========
+To make a storage class default use, 
+annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+
+verify the same by running k get sc , default will be there with name
+--
+ annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+
+>>Insted of using above one use ,
+spec:
+  ingressClassName: nginx
+
+=========
+k create ingress webapp-ingress --rule=kodekloud-ingress.app/*=webapp-svc:80 -n ingress-ns
+===
+Creating User and assigning RBAC
+
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: myuser # example
+spec:
+  # This is an encoded CSR. Change this to the base64-encoded contents of myuser.csr
+  request: 
+  signerName: kubernetes.io/kube-apiserver-client
+  expirationSeconds: 86400  # one day
+  usages:
+  - client auth
+
+Link:https://kubernetes.io/docs/tasks/tls/certificate-issue-client-csr/
+Approver:kubectl certificate approve myuser
+cat myuser.csr | base64 | tr -d "\n"
+======================
+k exec -it pod -- nslookup <servive name>  >> to file 
+k exec -it pod -- nslookup <172-17-0-3.default.pod.cluster.local>  >> to file , DNS lookup results 
+===========
+kubectl get deploy -n <NAMESPACE> <DEPLOYMENT-NAME> -o json | jq -r '.spec.template.spec.containers[].image'
+helm uninstall <RELEASE-NAME> -n <NAMESPACE>
+---
+kubectl describe nodes | grep -i taint
+----
+ livenessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+---------
+secrets and config maps can be refereced in pod in two ways , ENV and VOLUMES
+------%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+k set env deploy/cm-webapp -n cm-namespace --from=configmap/app-config --dry-run=client -o yaml >h.yaml
+
+k set env deploy/cm-webapp -n cm-namespace prince=rudra rajjo=babu --dry-run=client -o yaml>h.yaml
+
+k set env deploy/cm-webapp -n cm-namespace --keys=ENV --from=configmap/app-config --dry-run=client -o yaml >k.yaml
+
+we can use same command to just update environment variable
+
+========&&&&&&&&&&&&&77777777&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+netpolicy can be applied only for ports as well
+ ingress:
+  - from
+     -ports:
+      - protocol: TCP
+        port: 6379
+--------
+realpath <new-version>, to get path of any directory in linus  
+=======
+kubectl get deploy -n <NAMESPACE> <DEPLOYMENT-NAME> -o json | jq -r '.spec.template.spec.containers[].image'
+--======
+when you are updating security context , delte the older securuty context: {}
+=========k create clusterrole storage-admin --verb=get,watch,list,create,delete --resource=storageclasses,persistentvolumes --dry-run=client -o yaml >1.yaml
+
+-----------
+kubectl exec -it webapp-color -- /bin/sh
+-----------
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello
+spec: 
+  schedule: "*/1 * * * *"  
+  jobTemplate:
+    spec:
+      backoffLimit: 25
+      activeDeadlineSeconds: 20
+      template:
+        spec:
+           containers:
+           - image: kodekloud/throw-dice
+             name: throw-dice
+           restartPolicy: Never
+=============
+
+  - image: busybox
+    name: europa
+    command: ["/bin/sh","-c","sleep 4800"]
+--------
+kubectl get crds | grep verticalpodautoscaler  > /root/vpa-crds.
+txt
+-----
+check hoe to use kubectl convert -f FILENAME
+----
+helm repo update kk-mock1 -n kk-ns
+
+The helm search command searches for all the available charts in a specific Helm chart repository. In our case, it's the nginx helm chart.
+
+helm upgrade [RELEASE] [CHART] 
+
+helm upgrade kk-mock1 kk-mock1/nginx -n kk-ns --version=18.1.15 
+========
+Create a StorageClass named local-sc with the following specifications and set it as the default storage class:
+
+then 
+
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+============
+k convert -f ingress-old.yaml --output-version networking.k8s.io/v1 | k apply -f -
+=========
+docker exec -it 5ff392131efa /bin/bash
+------
+spec:
+      containers:
+       - $patch: delete
+         name: memcached
+=====
+patches:
+- target: 
+   kind: Deployment
+   name: mongo-deployment
+  # patch: |-
+  #  - op: remove
+  #    path: /spec/template/metadata/labels/org
+  path: patch.yaml
+=======================
+Define a TCP liveness probe
+A third type of liveness probe uses a TCP socket. With this configuration, the kubelet will attempt to open a socket to your container on the specified port. If it can establish a connection, the container is considered healthy, if it can't it is considered a failure.
+
+livenessProbe:
+      tcpSocket:
+        port: 8080
+=====
+k run temp --restrt=Never --image=nginx --rm -i -- curl http://
+
+================
+
+Step 3: Annotate the Deployment to Record the Change
+Manually annotate the deployment to log the change, replacing the functionality of the deprecated --record option.
+
+kubectl annotate deployment nginx-deploy kubernetes.io/change-cause="Updated nginx image to 1.17"
+
+we can run this command just after k set image .
+
+this will show updat history in k rollout history command.
+===========
+k exec -it pod1 -- /bin/sh -c -- whoami
+------===
+for namespaceselector in network policy use labels attached to the namespaces , k get ns --show-labels
+=====
+k run temp1 --image nginx:alpine --rm -i -- curl ht
+tp://nginx-resolver-service.default.svc.cluster.local:80
+
+k run temp1 --image nginx:alpine --rm -i -- curl http://nginx-resolver-service.default:80
+===================

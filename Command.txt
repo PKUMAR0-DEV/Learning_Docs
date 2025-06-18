@@ -1,0 +1,182 @@
+docker ps -a -q | xargs -r docker stop && docker ps -a -q | xargs -r docker rm && docker images -q | xargs -r docker rmi --force
+
+docker container stop $(docker container ls -aq)
+
+docker system prune -a --volumes -f
+
+docker run -dt --name newbusy busybox
+ 
+docker exec -it newbusy sh
+
+docker commit newbusy newbusy1
+
+docker commit --change='CMD ["<new_command>", "<arg1>", "<arg2>"]' <container_id> <new_image_name>
+docker logs conauner id
+
+docker run --name <> <image name>
+
+docker build -t name:tag -t name:tag . 
+
+=
+
+patches:
+  - target:
+      kind: Deployment
+      name: mongo-deployment
+    patch: |-
+      - op: remove
+        path: /spec/template/metadata/labels/org
+==
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - $patch: delete
+          name: memcached
+========
+delete means uninstall
+helm list -a , it will show pending also
+helm search repo bitnami/nginx
+helm intall <release name> chart name
+helm upgrade <release name> chart name
+helm pull --untar bitnami/ruby
+
+helm install myappng bitnami/nginx --set replicaCount=3
+
+helm show values bitnami/nginx | grep -i replicaCount -A 5 -B 5
+
+================
+k get secrets
+k create token dashboard-sa
+
+k get secret dashboard-sa -o jsonpath="{.data.token}" | base64 -d
+
+k run pod2 --image nginx --dry-run=client -o yaml >2.yaml --command -- bin/sh -c sleep 10
+=============
+
+for identation , esc > shift v > down arrow to select below lines to ident > press {><} keys to ident
+=======
+ k exec -it pod2 -- curl 10.0.138.195:3333 >curlresult.yaml
+=
+echo pince >test1
+===
+we can even copt the messence that we get in describe command to a file to store log
+===
+kubectl rollout restart RESOURCE [options]
+====
+k label pod  -l peince=rudra rajjo=sona
+
+k annotate pod -l peince=rudra rajjo=bubu
+==========
+k run temp --image=nginx:alpine --rm -i -- curl http://<service name.namespace>:service pott
+
+=====
+when we write net policy under from:
+                                 - podselerctor
+                                   namespaces  selector 
+                                 - podseletor 
+                                 - namespaceselctor 
+                               if diffent port
+                               from
+                                 -
+
+===========
+kubectl run test-nslookup --image=busybox:1.28 --rm -it --restart=Never -- nslookup nginx-resolver-service
+kubectl run test-nslookup --image=busybox:1.28 --rm -it --restart=Never -- nslookup nginx-resolver-service > /root/CKA/nginx.svc
+
+---------------
+In Kubernetes NetworkPolicy, the structure of the ingress rules changes depending on whether the from field is included.
+- When the from field is omitted, the rule directly lists ports, and each entry under ports has a - before it because it's part of an array.
+- When the from field is included, the array structure changes. The from section itself is an array of allowed sources, each of which may contain a ports sub-section. Since ports is now nested inside from, it is no longer a top-level array and does not need a - before individual ports.
+Example:
+Without from:
+ingress:
+  - ports:
+      - protocol: TCP
+        port: 80
+
+
+ingress:
+  - from:
+      - podSelector:
+          matchLabels:
+            run: np-test-2
+    ports:
+      protocol: TCP
+      port: 80
+===============
+ingress:
+  - ports:
+      - protocol: TCP
+        port: 80
+      - protocol: TCP
+        port: 443
+      - protocol: UDP
+        port: 53
+
+===
+ingress:
+  - from:
+      - podSelector:
+          matchLabels:
+            run: np-test-2
+      - namespaceSelector:
+          matchLabels:
+            name: trusted-namespace
+    ports:
+      - protocol: TCP
+        port: 80
+      - protocol: TCP
+        port: 443
+      - protocol: UDP
+        port: 53
+====
+curl http://<service-name>.<namespace>.svc.cluster.local:<port>
+kubectl rollout undo deployment nginx-deploy --to-revision=1
+
+===========
+You're absolutely right! When connecting to a pod directly via its IP address, you don't need to specify the namespace in the curl command.
+Why?
+- Pod IPs are unique within the cluster, so you can reach the pod from another pod without needing the namespace.
+- Namespaces are mostly relevant for managing Kubernetes resources like Deployments, Services, ConfigMaps, etc.
+- If using a service DNS name (<service-name>.<namespace>.svc.cluster.local), then the namespace matters.
+================
+helm upgrade kk-mock1 kk-mock1/nginx -n kk-ns --version=18.1.15
+========
+✅ Step-by-step: Create a shortcut alias
+Open your shell config file (depending on your shell):
+
+For Bash: ~/.bashrc
+
+alias kdry='kubectl --dry-run=client -o yaml'
+Save and reload the shell config:
+
+source ~/.bashrc   # or `source ~/.zshrc` for Zsh
+=======================================
+helm repo remove hashicorp
+===
+helm repo add bitnami https://charts.bitnami.com/bitnami
+=====
+docker save -o testtar.tar 12534007bbb3
+docker load -i testtar.tar
+=========
+helm get values prince
+helm show values bitnami/nginx
+=========
+cat /etc/kubernetes/manifests/kube-apiserver.yaml | grep admission-plugins
+=====
+controlplane:/etc/kubernetes/manifests$ ls
+etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml
+========
+vi /etc/kubernetes/manifests/kube-apiserver.yaml
+--disable-admission-plugins=NamespaceLifecycle
+========
+- activeDeadlineSeconds: 120 → Kubernetes will terminate the pod if it runs for more than 2 minutes.
+- terminationGracePeriodSeconds: 10 → When termination begins (due to deadline or manual shutdown), the pod gets 10 seconds to clean up before it's forcefully removed.
+============
+k taint node node01 spray=morten:NoSchedule-
+============

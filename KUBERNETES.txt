@@ -1,0 +1,508 @@
+kubectl run redis --image=redis123 --dry-run=client -o yaml > redis-definition.yaml
+
+kubectl create -f redis-definition.yaml
+
+kubectl run nginx --image=nginx
+
+kubectl edit replicaset <name of replica>
+
+kubectl get pod <pod-name> -o yaml > pod-definition.yaml
+
+kubectl delete pods --all
+
+>>
+To modify the properties of the pod, you can utilize the kubectl edit pod <pod-name> command. Please note that only the properties listed below are editable.
+
+spec.containers[*].image
+
+spec.initContainers[*].image
+
+spec.activeDeadlineSeconds
+
+spec.tolerations
+
+spec.terminationGracePeriodSeconds
+>>
+##once you edit the replicaset the new pods are not automatically created , you either delete the recreate rc or update rc and delete all pods 
+
+##deployment created replicaset , replicaset crets pods 
+
+kubectl get all
+
+kubectl get namespace
+kubectl get pods --namespace=research
+
+kubectl run redis --image=redis --namespace=finance
+
+kubectl get pods --all-namespaces -l name=blue >>to find in which namespace the pod is present
+kubectl get pods --all-namespaces --field-selector metadata.
+all nmaespace alias = -A
+
+kubectl get ns
+kubectl get svc -n=marketing
+
+kubectl run redis2 --image=redis --labels name=rudra
+
+ubectl label pod --all name=prince
+kubectl label pod redis2 name- , to remove label
+
+kubectl create namespace dev-ns
+
+kubectl expose pod redis --name=redis-service --port=6379
+
+kubectl create deployment webapp --image kodekloud/webapp-color --replicas=3
+
+kubectl run httpd --image=httpd:alpine --port=80 --expose
+
+>>>DockerFile>>>
+
+FROM Ubuntu
+RUN apt-get update
+RUN apt-get intall python
+
+RUN pip intall flask
+RUN pip intall flask-mysql
+
+COPY . /opt/source-code
+
+ENTRYPOINT FLASK_APP=/opt/source-code/app.py flask run
+
+>>>
+docker images
+
+entrypoint > command 
+cmd > args
+
+-------------
+export DOCKER_BUILDKIT=1
+docker build -t webapp-color . 
+docker build -t webapp-color:lite .
+
+>>Pod with command>>
+apiVersion: v1
+kind: Pod 
+metadata:
+  name: ubuntu-sleeper-2 
+spec:
+  containers: 
+  - name: ubuntu
+    image: ubuntu
+    command: ["sleep","5000"]
+------------
+  # Start the nginx pod using the default command, but use custom arguments (arg1 .. argN) for that command
+  kubectl run nginx --image=nginx -- <arg1> <arg2> ... <argN>
+  
+  # Start the nginx pod using a different command and custom arguments
+  kubectl run nginx --image=nginx --command -- <cmd> <arg1> ... <argN>
+
+----------
+kubectl create configmap webapp-config-map --from-literal=APP_COLOR=darkblue --from-literal=APP_OTHER=disregrad
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: webapp-color
+  name: webapp-color
+  namespace: default
+spec:
+  containers:
+  - env:
+    - name: APP_COLOR
+      valueFrom:
+       configMapKeyRef:
+         name: webapp-config-map
+         key: APP_COLOR
+    image: kodekloud/webapp-color
+    name: webapp-color
+
+------------
+echo -n 'password' | base64
+echo -n 'password' | base64 --decode  
+
+kubectl create secret generic <secret-name> --from-literal=<key>=<value>
+
+kubectl replace --force -f /temp/pod.yaml
+------------          
+kubectl exec ubuntu-sleeper -- whoami
+
+kubectl delete pod ubuntu-sleeper --force  > To delete pod faster
+
+kubectl create token dashboard-sa
+
+kubectl set serviceaccount deploy/web-dashboard dashboard-sa
+
+k taint nodes node01 spray=mortein:NoSchedule
+
+kubectl taint nodes controlplane node-role.kubernetes.io/control-plane:NoSchedule- to untaint the node
+
+kubectl lable nodes node01 color=blue
+
+kubectl describe node node01 | grep -i taints ,-i flag would make the search case-insensitive.
+
+kubectl -n elastic-stack exec -it app -- cat /log/app.log
+
+<<<<<<<<<<<<<<<<<<<Vi Editor>>>>>>>>>>>>>>
+
+ecap /serch , press n to see occurence 
+
+escp d , shift g to delete lines
+
+dd deletes the whole line under the cursor.
+5dd deletes multiple (5) lines, starting at the cursor.
+d$ deletes to the end of the line, starting at the cursor.
+dG deletes all lines starting from the line under the cursor
+------------------------------------------------------------
+
+K logs -f event-simulator-pod event simulator <in case of multi c , specify thre name of container you want to see the log>>
+
+kubectl exec -it simple-webapp-1 -- /bin/bash -c "/root/curl-test.sh"
+
+kubectl config use-context <context-name>
+kubectl config current-context
+
+kubectl logs <pod name>
+kubectl top node
+
+az aks get-credentials --resource-group aks-resources-kkt-9955 --name example-aks1
+kubectl get pods --selector env=dev,bu=finance
+
+kubectl create -f deployment-defination.yaml
+kubectl rollout undo deployment/nginx-deployment --to-revision=<revision-number>
+kubectl set image deploy nginx-deployment php-redis=nginx --record=true , to have change cause
+
+kubectl get deployments
+
+k apply -f deployment-defination.yaml
+
+k set image deployment/myapp-deployment nginx(name of container)=nginx:1.9.1 
+kubectl expose deployment kplabs-service --port 8080 --target-port 8080 --type NodePort
+
+k rollout status deployment/myapp-deployment
+
+k rollout history deployment/myapp-deployment
+
+k rollout undo deployment/myapp-deployment
+
+kubectl scale deployment --replicas=1 frontend-v2
+
+kubectl create ingress <ingress-name> --rule="host/path=service:port"
+
+kubectl create ingress ingress-test --rule="wear.my-online-store.com/wear*=wear-service:80"
+
+kubectl get jobs
+
+kubectl get ingress --all-namespaces
+kubectl describe ingress --namespace app-space
+
+k get networkpolicy
+
+k get pod --show-labels | grep name=payroll
+
+k auth can-i delete nodes
+k auth can-i create deployment
+
+if admin
+
+k auth can-i create deployment -- user-dev 
+
+kubectl auth can-i get pods/dark-blue-app --as=dev-user -n blue, correct
+
+kubectl convert -f nginx.yaml --output-version apps/v1
+
+k config view
+
+
+
+kubectl config --kubeconfig=/root/my-kube-config use-context research
+kubectl config --kubeconfig=/root/my-kube-config current-context
+
+>>>>>>>>>>>>
+Add the my-kube-config file to the KUBECONFIG environment variable.
+
+Open your shell configuration file:
+vi ~/.bashrc
+Add the following line to export the variable:
+export KUBECONFIG=/root/my-kube-config
+Apply the Changes:
+
+Reload the shell configuration to apply the changes in the current session:
+
+source ~/.bashrc
+>>>>>>>>>>>>
+
+kubectl create role developer --namespace=default --verb=list,create,delete --resource=pods
+
+To create a RoleBinding:- kubectl create rolebinding dev-user-binding --namespace=default --role=developer --user=dev-user
+
+
+--------
+k get clusterrole --no-headers | wc -l
+>>wc stands for word count, and the -l flag tells it to count the lines in the output.
+>>It tells kubectl not to display the headers in the output, which would typically show column names like NAME, AGE, etc., when listing resources.
+-------
+ClusterRole is a non-namespaced resource. You can check via the kubectl api-resources --namespaced=false 
+----------------
+
+kubectl create clusterrolebinding cluster-admin3 --clusterrole=node-reader --user=michelle
+kubectl create clusterrole node-reader --verb=get --verb=list --verb=watch --resource=nodes
+----
+/etc/kubernetes/manifests/kube-apiserver.yaml for path to admission controller
+
+--------
+ps -ef | grep kube-apiserver | grep admission-plugins
+The command checks the processes running on the system to see if the kube-apiserver process is running with certain admission plugins enabled.
+---------
+ubectl -n webhook-demo create secret tls webhook-server-tl
+s --cert "/root/keys/webhook-server-tls.crt" --key "/root/keys/webhook-server-tls.key"
+------
+kubectl explain job and see the API group in the top of the line.
+-------
+To convert an older Deployment to apps/v1, you can run:
+
+kubectl convert -f ./my-deployment.yaml --output-version apps/v1
+-------
+k api-resources , to get the short name
+---
+k explain deployment , to get the apiversion
+----
+cat /etc/*release* , to get the os installed
+---
+helm env
+helm search hub <keyword>         # Search for charts in the Artifact Hub or your own hub instance
+elm repo add <repo-name> <url>   # Add a repository from the internet:
+helm repo list                    # List added chart repositories
+helm repo update                  # Update information of available charts locally from chart repositories
+helm repo remove <repo_name>      # Remove one or more chart repositories
+helm repo index <DIR>             # Read the current directory and generate an index file based on the charts found.
+helm repo index <DIR> --merge     # Merge the generated index with an existing index file
+helm search repo <keyword>        # Search repositories for a keyword in charts
+helm search hub <keyword>         # Search for charts in the Artifact Hub or your own hub instance
+helm pull --untar bitnami/ruby
+---
+
+k exac -it podname -- /bin/bash
+exit
+--
+kubectl top pods
+kubectl logs dev -c log-z , kubectl logs dev -c log-z | grep WARNING >/opt/logs 
+
+Fetches logs from the container named log-z inside the pod named dev , the second command will save it to other file 
+k exec -it rudra -c prince -- bin/bash , to exac into second container in same pod 
+-----
+kubectl api-resources , gives details about resources available
+--
+kubectl explain pod.spec.containers.ports
+---------
+kubectl create job rudra --image=nginx -- ping "-c" "30" "google.com"
+----
+kubectl create cronjob ru --image=nginx --schedule "* * *  * *"
+-----
+* Pod is assined with ip addedss and by default it can connect to each other
+* Pod ip is destroyed every time it is created
+* pod port changes on which container inside it listen according to image, ex redis listen on 6379
+* sevice is used with selctor to make pod accisible even if the ip is changed as svc ip is permanet.
+* cluster ip is accisible within cluster 
+* nodeport svc is useful when node ip is uded to access pod with the help of exposed nodeport <nodeIP>:nodePort
+* loadebalancer , only put type loadbalancer , no need to spacify node port , acced through loadbalancer ip
+
+
+==============
+To get the service account which is used by pod to authenticate to cluster to create pod or any operation
+*exec into that pod 
+*cd var/run/secrets/kubernetes.io/serviceaccount , where sa token resides
+=========
+every ns has a service account , when you create a new ns a neew sa is automatically created.
+=====
+network policy:
+Based on:
+podSelector NamespaceSelecor ipBlock
+========
+kubectl get pods --field-selector=metadata.name=pod11 
+kubectl get events -o json
+kubectl get events --field-selector=involvedObject.name=pod12
+=========
+Role can be used to grant access within singe namespace 
+cluster roles can be used o grant access to cluster scoped resource like node and namespaced scope resource like pods
+
+>>A clusterRole can also be binded to rolebinding , buth that custer role will now be applicable in only the namespace of the rolebinding.
+====
+docker container stop $(docker container ls -aq)
+docker container rm $(docker container ls -aq)
+>>Bsicalliy docker container ls -aq passes the value of all the images 
+
+docker tag <container id> demo:v1
+
+======
+How to delete all pods in a rs ? Ans: check if that rs has any albel for the pods , kubectl delete pod -l app=nginx
+kubectl run pod1 --image=nginx -l app:nginx , to lable pass -l flag
+kubectl run pod1 --image=nginx --port=80
+
+kubectl expose deploy redis --port=80 --target-port=8080 --name new , to expose a deployment to a service , same command to expose pod or rs
+
+===
+>>Securtiy context is defined at two labels one at pod and second as container , the ex is given below
+
+spec:
+  securityContext:
+    runAsUser: 0
+  containers:
+  - name: nginx
+    image: nginx
+    securityContext: 
+      capabilities:
+        add: ["NET_ADMIN","SYS_TIME"]
+
+====
+mkdir -p /opt/outputs , -p will create a parent directory if doesnt exists 
+
+ k logs e-com-1123 >/opt/outputs/e-com-1123.logs -n e-commerce
+
+after exec into a container if you want to see env , echo $NGINX_PORT or printenv
+----
+In Kubernetes, taints and tolerations, as well as node affinity, are used to control the scheduling of pods onto nodes. Here are the different types of operators used in these mechanisms:
+
+
+#### Toleration Operators:
+1. **`Equal`**: The key-value pair must match exactly.
+2. **`Exists`**: The key must exist, regardless of the value.
+
+Example of a taint:
+```sh
+kubectl taint nodes node1 key=value:NoSchedule
+```
+
+Example of a toleration:
+```yaml
+tolerations:
+- key: "key"
+  operator: "Equal"
+  value: "value"
+  effect: "NoSchedule"
+```
+
+### Node Affinity
+
+Node affinity is a way to constrain which nodes your pod is eligible to be scheduled based on labels on the nodes.
+
+#### Node Affinity Operators:
+1. **`In`**: The value must be in the specified list.
+2. **`NotIn`**: The value must not be in the specified list.
+3. **`Exists`**: The key must exist.
+4. **`DoesNotExist`**: The key must not exist.
+5. **`Gt`**: The value must be greater than the specified value.
+6. **`Lt`**: The value must be less than the specified value.
+
+Example of node affinity:
+```yaml
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: "key"
+          operator: "In"
+          values:
+          - "value1"
+          - "value2"
+==============================
+kubectl create ingress ingress --rule="ckad-mock-exam-solution.com/video*=my-video-service:8080" --dry-run=client -oyaml > ingress.yaml
+kubectl create ingress ingress2 --rule=prince.rudra/love*=loveyou:8080
+kubectl create ingress ingress1 --rule=prince.com/vidro*=myvideo:8080 --rule=prince.com/image*=myimage:8080 
+==============
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+
+-----
+nodeselector should be user spec
+its containers, volumes , volumemounts
+
+kubernetes.io/hostname: controlplane
+```
+>>>
+when you write ingress also get sevice details and add the port in ingress ,for ex if svc port is 8080
+k create ingress ingress-vh-routing --rule=watch.ecom-store.com/video*=video-service:8080 --rule=apparels.ecom-store.com/wear*=apparels-service:8080 --dry-run=client -o yaml >po.yaml
+=====
+toget endopints of service 
+kubectl get ep
+====
+kubectl config use-context <>
+-===
+kubectl top pods --sort-by=memory
+kubectl top pod pod1 --containers  , to get metrics of all container in a pod
+kubectl cluster-info
+======
+To ensure the service works correctly, you need to specify the containerPort in the deployment. 
+
+>>>>>>>
+Resouce quota is namespace dependent . If applied it will not let pods to be created if no request and limit is defined
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-resources
+  namespace: prince
+spec:
+  hard:
+   requests.cpu: 2
+   requests.memory: 1Gi
+   limits.cpu: 4
+   limits.memory: 
+==========================
+===========
+Create a pod called time-check in the dvl1987 namespace. This pod should run a container called time-check that uses the busybox image.
+
+Create a config map called time-config with the data TIME_FREQ=10 in the same namespace.
+The time-check container should run the command: while true; do date; sleep $TIME_FREQ;done and write the result to the location /opt/time/time-check.log.
+The path /opt/time on the pod should mount a volume that lasts the lifetime of this pod.
+=====
+kbectl create configmap con1 --from-literal=key1=value1 --from-literal=key2=value2
+kubectl create secret generic se1 --from-literal=key=vale 
+
+>These two objects can be referaced in pod as ENV and as volume mount
+---------
+>> appends the file , > just overwrite it 
+============
+when creating hostpath type volume , we must create 
+
+  hostPath:
+      path: /var/local/aaa/1.txt
+      type: FileOrCreate
+=========
+helm repo add reponame
+helm install <releasename> reponame/appname
+helm uninstall <releasename>
+helm upgrade dazzling-web bitnami/nginx --version 18.3.6
+
+helm repo update kk-mock1
+helm upgrade kk-mock1 kk-mock1/nginx --version 18.1.15 -n kk-ns
+helm upgrade releasename reponame/chartname --version 
+
+helm create prince-webserver , tree prince-webserver, vi Values.yaml , vi Charts.yaml to set version.
+helm install my-nginx prince-webserver
+helm upgrade my-nginx prince-webserver
+helm template prince-webserver
+helm list
+helm rollback my-nginx 1
+helm uninstall my-nginx
+======
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+===================
+source /etc/profile.d/bash_completion.sh
+=======
+docker run -d --name my-container -p 8383:8080 webapp-color:lite
+===========
+kubectl cp 
+
+https://kubernetes.io/docs/reference/kubectl/generated/kubectl_cp/
+
+===========
