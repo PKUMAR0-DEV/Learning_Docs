@@ -1,0 +1,5 @@
+terraform output
+ssh -i ~/.ssh/azure_vm_key azureuser@172.190.54.212
+
+
+/var/lib/jenkins/secrets/initialAdminPassword
